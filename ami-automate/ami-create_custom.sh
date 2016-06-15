@@ -40,15 +40,13 @@ echo -e "Following AMI is found : `cat /tmp/$i\_imageid.txt`\n"
 aws ec2 describe-images --image-ids `cat /tmp/$i\_imageid.txt` | grep snap | awk ' { print $4 }' > /tmp/snap.txt
 
 echo -e "Following are the snapshots associated with it : `cat /tmp/$i\_snap.txt`:\n "
-# 
 echo -e "Starting the Deregister of AMI... \n"
-#
+
 ##Deregistering the AMI 
 aws ec2 deregister-image --image-id `cat /tmp/$i\_imageid.txt`
-#
-echo -e "\nDeleting the associated snapshots.... \n"
 
 ##Deleting snapshots attached to AMI
+echo -e "\nDeleting the associated snapshots.... \n"
 for i in `cat /tmp/$i\_snap.txt`;do aws ec2 delete-snapshot --snapshot-id $i ; done
 
 else
