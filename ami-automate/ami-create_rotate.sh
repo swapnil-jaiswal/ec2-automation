@@ -5,7 +5,7 @@
 mkdir -p /custom_scripts/
 cd /custom_scripts/
 ## in case you don't want to take instance id from an external text file you can hardcode as below##
-#declare -a ami_ids=('i-461a7df6' 'i-541a7de4' 'i-571a7de7' );
+#declare -a ami_ids=('i-dummy-id1' 'i-dummy-id2' 'i-dummy-id3' );
 ami_ids='/custom_scripts/ami.txt'
 
 for i in `cat $ami_ids`
