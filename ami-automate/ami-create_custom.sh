@@ -1,10 +1,12 @@
 #!/bin/bash
-#Script to create AMI of server on daily basis and deleting AMI older than n no of days
+#Script to create AMI of server on daily basis and deleting AMI older than n (= 7) no of days
 
+## Location of this bash file should be in /custom_scripts/
+mkdir -p /custom_scripts/
+cd /custom_scripts/
 ## in case you don't want to take instance id from an external text file you can hardcode as below##
 #declare -a ami_ids=('i-461a7df6' 'i-541a7de4' 'i-571a7de7' );
 ami_ids='/custom_scripts/ami.txt'
-
 
 for i in `cat $ami_ids`
 do
@@ -23,8 +25,8 @@ aws ec2 create-image --instance-id $i --name "`cat /tmp/$i\_aminame.txt`"  --des
 echo -e "AMI ID is: `cat  /tmp/$i\_amiID.txt `\n"
 
 ##Finding AMI older than 3 days which needed to be removed
-echo -e "Looking for AMI older than 3 days:\n "
-echo "instance-`date +%d%b%y --date '4 days ago'`" > /tmp/$i\_amidel.txt
+echo -e "Looking for AMI older than 7 days:\n "
+echo "instance-`date +%d%b%y --date '8 days ago'`" > /tmp/$i\_amidel.txt
 
 ##Finding Image ID of instance which needed to be Deregistered
 aws ec2 describe-images --filters "Name=name,Values=`cat /tmp/$i\_amidel.txt`" | grep -i imageid | awk '{ print  $4 }' > /tmp/$i\_imageid.txt
