@@ -11,10 +11,8 @@ for i in `cat $ami_ids`
 do
 
 echo -e "----------------------------------\n Picking up instance $i at `date`   \n----------------------------------"
-
 ##To create a unique AMI name for this script
 echo "$i-`date +%d%b%y`" > /tmp/$i\_aminame.txt
-
 
 echo -e "Starting the Daily AMI creation for  instance: `cat /tmp/$i\_aminame.txt`\n"
 
@@ -24,9 +22,9 @@ aws ec2 create-image --instance-id $i --name "`cat /tmp/$i\_aminame.txt`"  --des
 ##Showing the AMI name created by AWS
 echo -e "AMI ID is: `cat  /tmp/$i\_amiID.txt `\n"
 
-##Finding AMI older than 1 day which needed to be removed
-echo -e "Looking for AMI older than 1 days:\n "
-echo "$i-`date +%d%b%y --date '1 days ago'`" > /tmp/$i\_amidel.txt
+##Finding AMI older than 7 day which needed to be removed
+echo -e "Looking for AMI older than 7 days:\n "
+echo "$i-`date +%d%b%y --date '7 days ago'`" > /tmp/$i\_amidel.txt
 
 ##Finding Image ID of instance which needed to be Deregistered
 aws ec2 describe-images --filters "Name=name,Values=`cat /tmp/$i\_amidel.txt`" | grep -i ami | awk '{ print  $9 }' > /tmp/$i\_imageid.txt
@@ -35,7 +33,7 @@ if [[ -s /tmp/$i\_imageid.txt ]];
 then
 
 echo -e "Following AMI is found : `cat /tmp/$i\_imageid.txt`\n"
-#
+
 ##Find the snapshots attached to the Image need to be Deregister
 aws ec2 describe-images --image-ids `cat /tmp/$i\_imageid.txt` | grep snap | awk ' { print $4 }' > /tmp/$i\_snap.txt
 
@@ -44,7 +42,7 @@ echo -e "Starting the Deregister of AMI... \n"
 
 #Deregistering the AMI
 aws ec2 deregister-image --image-id `cat /tmp/$i\_imageid.txt`
-#
+
 ###Deleting snapshots attached to AMI
 echo -e "\nDeleting the associated snapshots.... \n"
 for i in `cat /tmp/$i\_snap.txt`;do aws ec2 delete-snapshot --snapshot-id $i ; done
