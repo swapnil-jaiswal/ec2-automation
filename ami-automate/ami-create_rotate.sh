@@ -9,7 +9,7 @@ ami_ids='/custom_scripts/ami.txt'
 for i in `cat $ami_ids`
 do
 echo -e "----------------------------------\n Picking up instance $i at `date`   \n----------------------------------"
-#Create a unique AMI name for this script
+# Create a unique AMI name for this script
 echo "$i-`date +%d%b%y`" > /tmp/$i\_aminame.txt
 echo -e "Starting the Daily AMI creation for  instance: `cat /tmp/$i\_aminame.txt`\n"
 
@@ -28,7 +28,6 @@ for d in `seq 3 20`;
 # Finding Image ID corresponding to instance name above - which needed to be Deregistered
     aws ec2 describe-images --filters "Name=name,Values=`cat /tmp/$i\_amidel.txt`" | grep -i ami | awk '{ print  $9 }' >> /tmp/$i\_imageid.txt
 done
-
 
 if [[ -s /tmp/$i\_imageid.txt ]];
 then
