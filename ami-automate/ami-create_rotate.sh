@@ -40,17 +40,18 @@ aws ec2 deregister-image --image-id $imageid
 done
 
 echo -e "Following are the snapshots associated with it :\n`cat /tmp/$i\_snap.txt`\n"
-echo -e "Waiting for the snapshot deregistration to complete.. for 4 mins  "
+echo -e "Waiting for the snapshot deregistration to complete.. for 6 mins  "
 #sleep 120
-sleep 250
+sleep 360
 # Deleting snapshots attached to AMI
 echo -e "\nDeleting the associated snapshots.... \n"
 for snapid in `cat /tmp/$i\_snap.txt`;do
 aws ec2 delete-snapshot --snapshot-id $snapid ;
-echo -e "Deleting the snapshot... \n $snapid"
+echo -e "Deleted the snapshot... \n $snapid"
 sleep 1
 done
 
 else
 echo -e "No AMI found older than minimum required no of days"
 fi
+done
