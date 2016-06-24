@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to create AMI of server on daily basis and deleting AMI older than n no of days ( 2 < n < 21 )
+# Script to create AMI of server on daily basis and deleting AMI older than n no of days ( 2 < n < 30 )
 # Location of this bash file & ami.txt should be in /custom_scripts/
 # run this program as root or make sure the user is owner of /custom_scripts/ dir
 mkdir -p /custom_scripts/
@@ -9,7 +9,7 @@ ami_ids='/custom_scripts/ami.txt'
 for i in `cat $ami_ids`
 do
 echo -e "----------------------------------\n Picking up instance $i at `date`   \n----------------------------------"
-# Create a unique AMI name for this script
+#Create a unique AMI name for this script
 echo "$i-`date +%d%b%y`" > /tmp/$i\_aminame.txt
 echo -e "Starting the Daily AMI creation for  instance: `cat /tmp/$i\_aminame.txt`\n"
 
@@ -21,8 +21,8 @@ echo -e "AMI ID is: `cat  /tmp/$i\_amiID.txt `\n"
 
 # Clean up ami-name-list , ami-ID for this iteration #
 > /tmp/$i\_amidel.txt  ; > /tmp/$i\_imageid.txt  ;
-echo -e "Calculating name of  AMI which need to be removed for instance $i which are older than 2 days but not older than 20 days"
-for d in `seq 3 20`;
+echo -e "Calculating name of  AMI which need to be removed for instance $i which are older than 7 days but not older than 25 days"
+for d in `seq 7 25`;
   do
     echo "$i-`date +%d%b%y --date "$d days ago"`" > /tmp/$i\_amidel.txt
 # Finding Image ID corresponding to instance name above - which needed to be Deregistered
@@ -32,7 +32,6 @@ done
 if [[ -s /tmp/$i\_imageid.txt ]];
 then
 echo -e "Following AMI id were found corresponfing to above AMI names: `cat /tmp/$i\_imageid.txt`\n"
-
 # Find the snapshots attached to the Image need to be Deregister
 for imageid in `cat /tmp/$i\_imageid.txt`; do
 aws ec2 describe-images --image-ids $imageid | grep snap | awk ' { print $4 }' >> /tmp/$i\_snap.txt
@@ -41,15 +40,17 @@ aws ec2 deregister-image --image-id $imageid
 done
 
 echo -e "Following are the snapshots associated with it :\n`cat /tmp/$i\_snap.txt`\n"
-
+echo -e "Waiting for the snapshot deregistration to complete.. for 4 mins  "
+#sleep 120
+sleep 250
 # Deleting snapshots attached to AMI
 echo -e "\nDeleting the associated snapshots.... \n"
 for snapid in `cat /tmp/$i\_snap.txt`;do
+aws ec2 delete-snapshot --snapshot-id $snapid ;
 echo -e "Deleting the snapshot... \n $snapid"
+sleep 1
 done
 
 else
 echo -e "No AMI found older than minimum required no of days"
 fi
-
-done
